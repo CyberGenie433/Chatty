@@ -7,11 +7,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 st.title("_Streamlit_ is :red[cool] :sunglasses:")
 
-user_input = {["hello, i am",
-user_input = st.text_input("Enter ")
-st.write("Hello",user_input,"what can I help you with?")
-
-
 # Initialize the OpenAI model with your API key
 llm = OpenAI(api_key='sk-None-V0kN27JXPsXE2lCLZ2fBT3BlbkFJaBkL9arc9rvA4sgjGHEg')
 
