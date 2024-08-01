@@ -121,6 +121,3 @@ if __name__ == "__main__":
             answer = get_response(user_input)
             print("Answer:", answer)
 
-        if question == "exit":
-
-            break
