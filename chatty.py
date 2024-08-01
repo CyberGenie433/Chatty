@@ -1,30 +1,39 @@
-import random
+from langchain.chains import LLMChain
+from langchain.llms import OpenAI
+from langchain.prompts import PromptTemplate
+from streamlit import str
 
-import streamlit as st
+# Initialize the OpenAI model with your API key
+llm = OpenAI(api_key='sk-None-V0kN27JXPsXE2lCLZ2fBT3BlbkFJaBkL9arc9rvA4sgjGHEg')
 
-# Set the title of the app
-st.title("Welcome to My First Streamlit App")
+# Define a prompt template for querying
+prompt_template = PromptTemplate(
+    input_variables=["data_description", "question"],
+    template="""
+    You are a data analyst. Here is the data you have:
+    {data_description}
 
-# Add a text input
-name = st.text_input("Enter your name:")
+    Based on this data, answer the question: {question}
+    """
+)
 
-# Display the name entered by the user
-if name:
-    st.write(f"Hello, {name}! Welcome to the app.")
-get_chatbot_response = {
-    "hi": [
-         "Hello! I am Chatty, here to assist you in finding medical services within St. Kitts?"
-    ],
-    "i have some questions dealing with my mental health": [
-            "Sure, ask away!"
-    ],
-    
-}
-while True:
-    user_input = input("You: ").strip()
-    if user_input.lower() == "bye":
-        print("Alex: Ok bye")
-        break # exit the loop when the user types 'bye'
-    elif user_input.lower() in get_chatbot_response: 
-        # Access dictionary values using square brackets and the key
-        print("Alex:", random.choice(get_chatbot_response[user_input.lower()]))
+# Create a LangChain
+chain = LLMChain(llm=llm, prompt=prompt_template)
+
+def get_response(data_description, question):
+    # Running the chain to get a response based on the data description and a question
+    response = chain.run(data_description=data_description, question=question)
+    return response
+
+# Example usage
+if __name__ == "__main__":
+    data_description = "Data includes various facts about countries, such as capitals and population sizes and hurricane data"
+    while True:
+        question = st.text_input("Enter A Question \n")
+        answer = get_response(data_description, question)
+
+        print(answer)
+
+        if question == "exit":
+
+            break
