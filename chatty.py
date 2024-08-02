@@ -15,7 +15,7 @@ def solve_math_problem(problem):
         solution = sp.simplify(expression)
         return solution
     except (sp.SympifyError, ValueError) as e:
-        return f"I'm sorry, I couldn't solve the math problem. Error: {str(e)}"
+        return f"I'm sorry, I couldn't solve the math problem."
 
 def generate_response(prompt, history):
     # Combine history with the latest prompt to provide context
