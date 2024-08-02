@@ -10,10 +10,10 @@ tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
 def solve_math_problem(problem):
     try:
-        # Parse and solve the math problem
+        # Use sympy to parse and solve the expression
         expression = sp.sympify(problem)
         solution = sp.simplify(expression)
-        return str(solution)
+        return solution
     except Exception as e:
         return "I'm sorry, I couldn't solve the math problem."
 
