@@ -1,21 +1,26 @@
 import streamlit as st
 from transformers import pipeline
 from sympy import sympify, solve, Eq
+import openai
 
-# Initialize the text-generation pipeline with GPT-2
-qa_pipeline = pipeline("text-generation", model="gpt2")
+# Initialize OpenAI API key
+openai.api_key = 'your-openai-api-key'  # Replace with your actual API key
+
+# Initialize the text-generation pipeline with GPT-3
+qa_pipeline = pipeline("text-generation", model="gpt-3.5-turbo")  # Replace with your model if needed
 
 # Streamlit app
-st.title("Chatty")
+st.title("Chatty - Your Smart Assistant")
 
 # Instructions for users
 st.write("""
     **Welcome to Chatty!**  
-    How, can I help you
+    You can ask me any type of question, and I'll do my best to provide a helpful response.  
+    For math problems, I can solve them directly. For general questions, I'll use advanced language models to provide answers.
 """)
 
-# Input field and button
-user_input = st.text_area("Type your question here:", "")
+# Input field
+user_input = st.text_area("Type your question or math expression here:", "")
 
 def evaluate_math_expression(expression):
     try:
@@ -36,18 +41,28 @@ def is_math_expression(expression):
     operators = ["+", "-", "*", "/", "^"]
     return any(keyword in expression.lower() for keyword in math_keywords) or any(op in expression for op in operators)
 
-# Display processing spinner and results
+def get_general_answer(question):
+    try:
+        response = openai.Completion.create(
+            model="gpt-3.5-turbo",
+            prompt=question,
+            max_tokens=150
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        return f"Error: {e}"
+
+# Button to get the answer
 if st.button('Get Answer'):
     if user_input:
-        with st.spinner('Processing...'):
+        with st.spinner('Processing your request...'):
             if is_math_expression(user_input):
                 # Handle math expressions
                 result = evaluate_math_expression(user_input)
                 st.write("**Math Answer:**")
             else:
                 # Handle general questions
-                response = qa_pipeline(user_input, max_length=150, num_return_sequences=1)
-                result = response[0]['generated_text'].strip()
+                result = get_general_answer(user_input)
                 st.write("**General Answer:**")
             
             st.write(result)
