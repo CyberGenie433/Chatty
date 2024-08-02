@@ -52,7 +52,6 @@ def is_math_problem(text):
 
 # Streamlit UI
 st.title("Chatty - Your Friendly Chatbot")
-st.write("Hello! 🤗 I'm Chatty, your friendly chatbot. You can ask me anything, including math problems!")
 
 # Initialize session state for conversation history
 if 'history' not in st.session_state:
