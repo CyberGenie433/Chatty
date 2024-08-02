@@ -1,8 +1,8 @@
 import streamlit as st
-import openai
+from transformers import pipeline
 
-# Initialize OpenAI API key
-openai.api_key = 'your-openai-api-key'
+# Initialize the text-generation pipeline with GPT-2
+qa_pipeline = pipeline("text-generation", model="gpt2")
 
 # Streamlit app
 st.title("Chatty - Smart Question Answering")
@@ -10,13 +10,10 @@ st.title("Chatty - Smart Question Answering")
 # Get user input
 user_input = st.text_input("Ask a question:")
 
+# Generate and display the answer
 if user_input:
-    response = openai.Completion.create(
-        engine="gpt-3.5-turbo",
-        prompt=user_input,
-        max_tokens=150
-    )
-    answer = response.choices[0].text.strip()
+    response = qa_pipeline(user_input, max_length=150, num_return_sequences=1)
+    answer = response[0]['generated_text']
     st.write("Answer:")
     st.write(answer)
 else:
