@@ -1,11 +1,21 @@
 import streamlit as st
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import torch
+import sympy as sp
 
 # Load pre-trained model and tokenizer
 model_name = "gpt2"  # You can choose "gpt3", "gpt2-medium", "gpt2-large", or "gpt2-xl" based on your needs
 model = GPT2LMHeadModel.from_pretrained(model_name)
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+
+def solve_math_problem(problem):
+    try:
+        # Parse and solve the math problem
+        expression = sp.sympify(problem)
+        solution = sp.simplify(expression)
+        return str(solution)
+    except Exception as e:
+        return "I'm sorry, I couldn't solve the math problem."
 
 def generate_response(prompt, history):
     # Combine history with the latest prompt to provide context
@@ -35,9 +45,14 @@ def generate_response(prompt, history):
     response = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
     return response
 
+def is_math_problem(text):
+    # Simple heuristic to detect if the input is a math problem
+    math_keywords = ["solve", "calculate", "evaluate", "find"]
+    return any(keyword in text.lower() for keyword in math_keywords) or any(char.isdigit() for char in text)
+
 # Streamlit UI
 st.title("Chatty - Your Friendly Chatbot")
-st.write("Hello! 🤗 I'm Chatty, your friendly chatbot. How can I assist you today? Feel free to ask me anything!")
+st.write("Hello! 🤗 I'm Chatty, your friendly chatbot. You can ask me anything, including math problems!")
 
 # Initialize session state for conversation history
 if 'history' not in st.session_state:
@@ -50,13 +65,21 @@ if user_input:
     if user_input.lower() == 'quit':
         st.write("It was great talking to you! 😊 Feel free to refresh the page to start a new conversation.")
     else:
-        # Store user input
-        st.session_state.history.append(f"You: {user_input}")
+        # Check if input is a math problem
+        if is_math_problem(user_input):
+            response = solve_math_problem(user_input)
+        else:
+            # Store user input
+            st.session_state.history.append(f"You: {user_input}")
+            
+            # Generate response based on history
+            response = generate_response(user_input, st.session_state.history)
+            
+            # Ensure response is not empty and format it
+            if response:
+                st.session_state.history.append(f"Chatty: {response}")
         
-        # Generate response based on history
-        response = generate_response(user_input, st.session_state.history)
-        
-        # Ensure response is not empty and format it
+        # Display the response
         if response:
             st.session_state.history.append(f"Chatty: {response}")
         
