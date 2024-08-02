@@ -5,13 +5,15 @@ import openai
 openai.api_key = "your_openai_api_key_here"
 
 def generate_response(prompt):
-    response = openai.Completion.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4",
-        prompt=prompt,
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
         max_tokens=150,
         temperature=0.7
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message['content'].strip()
 
 # Streamlit app layout
 st.title("Chatty: Your Conversational AI")
