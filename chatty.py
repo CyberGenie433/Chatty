@@ -1,3 +1,4 @@
+pip install streamlit transformers textblob
 import streamlit as st
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from textblob import TextBlob
