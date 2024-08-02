@@ -2,20 +2,22 @@ import streamlit as st
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import torch
 import sympy as sp
+import re
 
 # Load pre-trained model and tokenizer
-model_name = "gpt2"  # You can choose "gpt3", "gpt2-medium", "gpt2-large", or "gpt2-xl" based on your needs
+model_name = "gpt2"  # You can use a different model like "gpt3" if you have access
 model = GPT2LMHeadModel.from_pretrained(model_name)
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
 def solve_math_problem(problem):
     try:
-        # Parse and solve the mathematical expression
+        # Remove extra spaces and parse the expression
+        problem = re.sub(r'\s+', '', problem)
         expression = sp.sympify(problem)
         solution = sp.simplify(expression)
         return solution
     except (sp.SympifyError, ValueError) as e:
-        return f"I'm sorry, I couldn't solve the math problem."
+        return f"I'm sorry, I couldn't solve the math problem. Error: {str(e)}"
 
 def generate_response(prompt, history):
     # Combine history with the latest prompt to provide context
@@ -47,8 +49,8 @@ def generate_response(prompt, history):
 
 def is_math_problem(text):
     # Simple heuristic to detect if the input is a math problem
-    math_keywords = ["solve", "calculate", "evaluate", "find"]
-    return any(keyword in text.lower() for keyword in math_keywords) or any(char.isdigit() for char in text)
+    # Looks for common math operators and digits
+    return bool(re.search(r'\d+|[\+\-\*/\^]', text))
 
 # Streamlit UI
 st.title("Chatty - Your Friendly Chatbot")
