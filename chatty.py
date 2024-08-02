@@ -1,4 +1,6 @@
-
+import streamlit as st
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from textblob import TextBlob
 
 # Load pre-trained model and tokenizer
 model_name = 'gpt2'  # You can replace 'gpt2' with other models if you have access
