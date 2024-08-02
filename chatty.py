@@ -1,39 +1,40 @@
-from langchain.chains import LLMChain
-from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
-from streamlit import str
+import streamlit as st
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from textblob import TextBlob
 
-# Initialize the OpenAI model with your API key
-llm = OpenAI(api_key='sk-None-V0kN27JXPsXE2lCLZ2fBT3BlbkFJaBkL9arc9rvA4sgjGHEg')
+# Load pre-trained model and tokenizer
+model_name = 'gpt2'  # You can replace 'gpt2' with other models if you have access
+model = GPT2LMHeadModel.from_pretrained(model_name)
+tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
-# Define a prompt template for querying
-prompt_template = PromptTemplate(
-    input_variables=["data_description", "question"],
-    template="""
-    You are a data analyst. Here is the data you have:
-    {data_description}
-
-    Based on this data, answer the question: {question}
-    """
-)
-
-# Create a LangChain
-chain = LLMChain(llm=llm, prompt=prompt_template)
-
-def get_response(data_description, question):
-    # Running the chain to get a response based on the data description and a question
-    response = chain.run(data_description=data_description, question=question)
+def generate_response(prompt):
+    # Encode the input prompt
+    inputs = tokenizer.encode(prompt, return_tensors='pt')
+    
+    # Generate a response from the model
+    outputs = model.generate(inputs, max_length=150, num_return_sequences=1)
+    
+    # Decode the generated response
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return response
 
-# Example usage
+def correct_spelling(text):
+    # Correct spelling using TextBlob
+    blob = TextBlob(text)
+    return str(blob.correct())
+
+def main():
+    st.title("Chatbot with GPT-2")
+    
+    # Text input from the user
+    user_input = st.text_input("You:", "")
+    
+    if user_input:
+        corrected_input = correct_spelling(user_input)
+        st.write(f"Corrected Input: {corrected_input}")
+        
+        response = generate_response(corrected_input)
+        st.write(f"Chatbot: {response}")
+
 if __name__ == "__main__":
-    data_description = "Data includes various facts about countries, such as capitals and population sizes and hurricane data"
-    while True:
-        question = st.text_input("Enter A Question \n")
-        answer = get_response(data_description, question)
-
-        print(answer)
-
-        if question == "exit":
-
-            break
+    main()
