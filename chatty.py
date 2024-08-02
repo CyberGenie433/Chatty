@@ -1,13 +1,9 @@
 import streamlit as st
-from transformers import pipeline
 from sympy import sympify, solve, Eq
 import openai
 
 # Initialize OpenAI API key
 openai.api_key = 'your-openai-api-key'  # Replace with your actual API key
-
-# Initialize the text-generation pipeline with GPT-3
-qa_pipeline = pipeline("text-generation", model="gpt-3.5-turbo")  # Replace with your model if needed
 
 # Streamlit app
 st.title("Chatty - Your Smart Assistant")
