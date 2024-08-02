@@ -11,7 +11,7 @@ st.title("Chatty - Your Smart Assistant")
 # Instructions for users
 st.write("""
     **Welcome to Chatty!**  
-    You can ask me any type of question, and I'll do my best to provide a helpful response.  
+    Type your question or math expression below, and I'll automatically provide an answer.  
     For math problems, I can solve them directly. For general questions, I'll use advanced language models to provide answers.
 """)
 
@@ -48,19 +48,18 @@ def get_general_answer(question):
     except Exception as e:
         return f"Error: {e}"
 
-# Button to get the answer
-if st.button('Get Answer'):
-    if user_input:
-        with st.spinner('Processing your request...'):
-            if is_math_expression(user_input):
-                # Handle math expressions
-                result = evaluate_math_expression(user_input)
-                st.write("**Math Answer:**")
-            else:
-                # Handle general questions
-                result = get_general_answer(user_input)
-                st.write("**General Answer:**")
-            
-            st.write(result)
-    else:
-        st.error("Please enter a question or expression before submitting.")
+# Auto-process input as soon as it changes
+if user_input:
+    with st.spinner('Processing your request...'):
+        if is_math_expression(user_input):
+            # Handle math expressions
+            result = evaluate_math_expression(user_input)
+            st.write("**Math Answer:**")
+        else:
+            # Handle general questions
+            result = get_general_answer(user_input)
+            st.write("**General Answer:**")
+        
+        st.write(result)
+else:
+    st.write("Please enter a question or expression above.")
