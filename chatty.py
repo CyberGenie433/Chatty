@@ -15,7 +15,7 @@ def generate_response(prompt):
     with torch.no_grad():
         outputs = model.generate(
             inputs,
-            max_length=100,  # Adjust the max length as needed
+            max_length=150,  # Adjust the max length as needed
             num_return_sequences=1,
             no_repeat_ngram_size=2,  # Helps reduce repetition
             pad_token_id=tokenizer.eos_token_id
@@ -26,11 +26,27 @@ def generate_response(prompt):
     return response
 
 # Streamlit UI
-st.title("Chatty - Your Mental Health Chatbot")
+st.title("Chatty - Your Friendly Chatbot")
+st.write("Welcome to Chatty! Type your message below and Chatty will respond. Type 'quit' to end the conversation.")
+
+# Initialize session state for conversation history
+if 'history' not in st.session_state:
+    st.session_state.history = []
 
 # Input from user
 user_input = st.text_input("You:", "")
 
 if user_input:
-    response = generate_response(user_input)
-    st.text_area("Chatty:", value=response, height=150, max_chars=None, key=None)
+    if user_input.lower() == 'quit':
+        st.write("Chat ended. Refresh the page to start a new conversation.")
+    else:
+        # Store user input and generate response
+        st.session_state.history.append(f"You: {user_input}")
+        response = generate_response(user_input)
+        st.session_state.history.append(f"Chatty: {response}")
+        
+        # Display conversation history
+        for message in st.session_state.history:
+            st.write(message)
+
+
