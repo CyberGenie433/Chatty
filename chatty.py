@@ -15,7 +15,7 @@ st.write("""
 """)
 
 # Input field and button
-user_input = st.text_area("Type your question or expression here:", "")
+user_input = st.text_area("Type your question here:", "")
 
 def evaluate_math_expression(expression):
     try:
