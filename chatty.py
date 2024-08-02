@@ -26,11 +26,11 @@ def generate_response(prompt):
     return response
 
 # Streamlit UI
-st.title("Chatbot with GPT-2")
+st.title("Chatty - Your Mental Health Chatbot")
 
 # Input from user
 user_input = st.text_input("You:", "")
 
 if user_input:
     response = generate_response(user_input)
-    st.text_area("Chatbot:", value=response, height=150, max_chars=None, key=None)
+    st.text_area("Chatty:", value=response, height=150, max_chars=None, key=None)
