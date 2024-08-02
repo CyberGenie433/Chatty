@@ -27,7 +27,7 @@ def generate_response(prompt):
 
 # Streamlit UI
 st.title("Chatty - Your Friendly Chatbot")
-st.write("Welcome to Chatty! Type your message below and Chatty will respond. Type 'quit' to end the conversation.")
+st.write("Hey there! 🤗 I'm Chatty, your friendly chatbot. How can I help you today?")
 
 # Initialize session state for conversation history
 if 'history' not in st.session_state:
@@ -38,15 +38,21 @@ user_input = st.text_input("You:", "")
 
 if user_input:
     if user_input.lower() == 'quit':
-        st.write("Chat ended. Refresh the page to start a new conversation.")
+        st.write("It was nice chatting with you! Feel free to refresh the page if you want to talk again. 😊")
     else:
         # Store user input and generate response
         st.session_state.history.append(f"You: {user_input}")
         response = generate_response(user_input)
+        
+        # Format response for a more human-like touch
+        response = response.strip().capitalize()
+        response = f"{response[0].upper()}{response[1:]}"
+        
         st.session_state.history.append(f"Chatty: {response}")
         
-        # Display conversation history
+        # Display conversation history with improved formatting
         for message in st.session_state.history:
-            st.write(message)
-
-
+            if message.startswith("You:"):
+                st.write(f"<div style='text-align: left;'><b>{message}</b></div>", unsafe_allow_html=True)
+            else:
+                st.write(f"<div style='text-align: right;'><b>{message}</b></div>", unsafe_allow_html=True)
