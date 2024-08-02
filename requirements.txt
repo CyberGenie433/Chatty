@@ -1,4 +1,4 @@
-
+textblob
 matplotlib==3.8.4
 streamlit==1.37.0
 torch==2.3.0
