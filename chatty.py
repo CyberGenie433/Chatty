@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import OpenAI
+import openai
 
 # Set up your OpenAI API key
 openai.api_key = "your_openai_api_key_here"
@@ -32,6 +32,4 @@ if user_input:
     
     # Display the AI's response
     st.write("Chatty:", ai_response)
-
-
 
