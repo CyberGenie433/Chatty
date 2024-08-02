@@ -10,12 +10,12 @@ tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
 def solve_math_problem(problem):
     try:
-        # Use sympy to parse and solve the expression
+        # Parse and solve the mathematical expression
         expression = sp.sympify(problem)
         solution = sp.simplify(expression)
         return solution
-    except Exception as e:
-        return "I'm sorry, I couldn't solve the math problem."
+    except (sp.SympifyError, ValueError) as e:
+        return f"I'm sorry, I couldn't solve the math problem. Error: {str(e)}"
 
 def generate_response(prompt, history):
     # Combine history with the latest prompt to provide context
@@ -52,6 +52,7 @@ def is_math_problem(text):
 
 # Streamlit UI
 st.title("Chatty - Your Friendly Chatbot")
+st.write("Hello! 🤗 I'm Chatty, your friendly chatbot. You can ask me anything, including math problems!")
 
 # Initialize session state for conversation history
 if 'history' not in st.session_state:
@@ -88,3 +89,4 @@ if user_input:
                 st.write(f"<div style='text-align: left;'><b>{message}</b></div>", unsafe_allow_html=True)
             else:
                 st.write(f"<div style='text-align: right;'><b>{message}</b></div>", unsafe_allow_html=True)
+
