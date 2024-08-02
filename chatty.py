@@ -10,13 +10,20 @@ tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 def generate_response(prompt, history):
     # Combine history with the latest prompt to provide context
     full_prompt = "\n".join(history + [prompt])
-    inputs = tokenizer.encode(full_prompt, return_tensors='pt')
     
+    # Encode the input prompt
+    inputs = tokenizer.encode(full_prompt, return_tensors='pt')
+
+    # Ensure the input length does not exceed model's maximum length
+    max_length = tokenizer.model_max_length
+    if inputs.size(1) > max_length:
+        inputs = inputs[:, -max_length:]  # Truncate to the last `max_length` tokens
+
     # Generate a response with constraints to avoid verbosity
     with torch.no_grad():
         outputs = model.generate(
             inputs,
-            max_length=100,  # Shorten the max length to avoid overly long responses
+            max_length=min(max_length, 150),  # Ensure generated length is within model limits
             num_return_sequences=1,
             no_repeat_ngram_size=2,
             pad_token_id=tokenizer.eos_token_id,
