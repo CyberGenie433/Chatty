@@ -7,15 +7,16 @@ model_name = "gpt2"  # You can choose "gpt3", "gpt2-medium", "gpt2-large", or "g
 model = GPT2LMHeadModel.from_pretrained(model_name)
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
-def generate_response(prompt):
-    # Encode the input prompt
-    inputs = tokenizer.encode(prompt, return_tensors='pt')
+def generate_response(prompt, history):
+    # Combine history with the latest prompt to provide context
+    full_prompt = "\n".join(history + [prompt])
+    inputs = tokenizer.encode(full_prompt, return_tensors='pt')
     
     # Generate a response
     with torch.no_grad():
         outputs = model.generate(
             inputs,
-            max_length=150,  # Adjust the max length as needed
+            max_length=200,  # Adjust the max length as needed
             num_return_sequences=1,
             no_repeat_ngram_size=2,  # Helps reduce repetition
             pad_token_id=tokenizer.eos_token_id
@@ -27,7 +28,7 @@ def generate_response(prompt):
 
 # Streamlit UI
 st.title("Chatty - Your Friendly Chatbot")
-st.write("Hey there! 🤗 I'm Chatty, your friendly chatbot. How can I help you today?")
+st.write("Hello! 🤗 I'm Chatty, your friendly chatbot. How can I help you today? Feel free to ask me anything!")
 
 # Initialize session state for conversation history
 if 'history' not in st.session_state:
@@ -38,17 +39,18 @@ user_input = st.text_input("You:", "")
 
 if user_input:
     if user_input.lower() == 'quit':
-        st.write("It was nice chatting with you! Feel free to refresh the page if you want to talk again. 😊")
+        st.write("It was great talking to you! 😊 Feel free to refresh the page to start a new conversation.")
     else:
-        # Store user input and generate response
+        # Store user input
         st.session_state.history.append(f"You: {user_input}")
-        response = generate_response(user_input)
         
-        # Format response for a more human-like touch
-        response = response.strip().capitalize()
-        response = f"{response[0].upper()}{response[1:]}"
+        # Generate response based on history
+        response = generate_response(user_input, st.session_state.history)
         
-        st.session_state.history.append(f"Chatty: {response}")
+        # Format response to look more conversational
+        response = response.strip()
+        if response:
+            st.session_state.history.append(f"Chatty: {response}")
         
         # Display conversation history with improved formatting
         for message in st.session_state.history:
