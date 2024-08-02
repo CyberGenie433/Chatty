@@ -1,35 +1,67 @@
 import streamlit as st
-import openai
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
 
-# Set up your OpenAI API key
-openai.api_key = "your_openai_api_key_here"
-
-def generate_response(prompt):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=150,
-            temperature=0.7
-        )
-        return response.choices[0].message['content'].strip()
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-# Streamlit app layout
-st.title("Chatty: Your Conversational AI")
-st.write("Hello! I am Chatty, your conversational AI. How can I assist you today?")
-
-# Input box for user message
-user_input = st.text_input("You:")
-
-# If user input is provided
-if user_input:
-    # Generate a response from the AI
-    ai_response = generate_response(user_input)
+# Define the transformer model
+class TransformerModel(nn.Module):
+    def __init__(self, vocab_size, d_model, nhead, num_encoder_layers, num_decoder_layers):
+        super(TransformerModel, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.transformer = nn.Transformer(d_model, nhead, num_encoder_layers, num_decoder_layers)
+        self.fc_out = nn.Linear(d_model, vocab_size)
     
-    # Display the AI's response
-    st.write("Chatty:", ai_response)
+    def forward(self, src, tgt):
+        src = self.embedding(src)
+        tgt = self.embedding(tgt)
+        output = self.transformer(src, tgt)
+        output = self.fc_out(output)
+        return output
+
+# Define the parameters for the transformer
+vocab_size = 10000
+d_model = 512
+nhead = 8
+num_encoder_layers = 6
+num_decoder_layers = 6
+
+# Instantiate the model
+model = TransformerModel(vocab_size, d_model, nhead, num_encoder_layers, num_decoder_layers)
+
+# Dummy data for demonstration purposes
+def dummy_data():
+    src = torch.randint(0, vocab_size, (10, 32))
+    tgt = torch.randint(0, vocab_size, (10, 32))
+    return src, tgt
+
+# Streamlit app
+st.title("Chatty - Simple Transformer Model")
+
+# Get user input
+src_text = st.text_input("Enter source text (comma-separated tokens):")
+tgt_text = st.text_input("Enter target text (comma-separated tokens):")
+
+if src_text and tgt_text:
+    # Convert text inputs to token IDs
+    src_tokens = [int(x) for x in src_text.split(',')]
+    tgt_tokens = [int(x) for x in tgt_text.split(',')]
+    
+    # Create tensors
+    src_tensor = torch.tensor(src_tokens).unsqueeze(1)  # Add batch dimension
+    tgt_tensor = torch.tensor(tgt_tokens).unsqueeze(1)  # Add batch dimension
+    
+    # Run the model
+    model.eval()  # Set the model to evaluation mode
+    with torch.no_grad():
+        output = model(src_tensor, tgt_tensor)
+    
+    # Convert output to probabilities
+    output_prob = torch.softmax(output, dim=-1)
+    output_text = output_prob.argmax(dim=-1).squeeze().tolist()
+    
+    st.write("Model output (token IDs):")
+    st.write(output_text)
+else:
+    st.write("Please enter source and target text.")
 
