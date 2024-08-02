@@ -1,8 +1,8 @@
 import streamlit as st
 from transformers import pipeline
 
-# Initialize the question-answering pipeline with a larger model
-qa_pipeline = pipeline("text-generation", model="gpt-3.5-turbo")
+# Initialize the text-generation pipeline with GPT-2
+qa_pipeline = pipeline("text-generation", model="gpt2")
 
 # Streamlit app
 st.title("Chatty - Smart Question Answering")
@@ -12,8 +12,9 @@ user_input = st.text_input("Ask a question:")
 
 # Generate and display the answer
 if user_input:
-    response = qa_pipeline(user_input, max_length=150, num_return_sequences=1)[0]['generated_text']
+    response = qa_pipeline(user_input, max_length=150, num_return_sequences=1)
+    answer = response[0]['generated_text']
     st.write("Answer:")
-    st.write(response)
+    st.write(answer)
 else:
     st.write("Please enter a question.")
