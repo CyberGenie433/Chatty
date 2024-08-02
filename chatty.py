@@ -12,23 +12,25 @@ def generate_response(prompt, history):
     full_prompt = "\n".join(history + [prompt])
     inputs = tokenizer.encode(full_prompt, return_tensors='pt')
     
-    # Generate a response
+    # Generate a response with constraints to avoid verbosity
     with torch.no_grad():
         outputs = model.generate(
             inputs,
-            max_length=200,  # Adjust the max length as needed
+            max_length=100,  # Shorten the max length to avoid overly long responses
             num_return_sequences=1,
-            no_repeat_ngram_size=2,  # Helps reduce repetition
-            pad_token_id=tokenizer.eos_token_id
+            no_repeat_ngram_size=2,
+            pad_token_id=tokenizer.eos_token_id,
+            temperature=0.7,  # Control the randomness of responses
+            top_k=50,  # Limit the number of tokens considered for generation
         )
     
     # Decode the output and return the response
-    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
     return response
 
 # Streamlit UI
 st.title("Chatty - Your Friendly Chatbot")
-st.write("Hello! 🤗 I'm Chatty, your friendly chatbot. How can I help you today? Feel free to ask me anything!")
+st.write("Hello! 🤗 I'm Chatty, your friendly chatbot. How can I assist you today? Feel free to ask me anything!")
 
 # Initialize session state for conversation history
 if 'history' not in st.session_state:
@@ -47,8 +49,7 @@ if user_input:
         # Generate response based on history
         response = generate_response(user_input, st.session_state.history)
         
-        # Format response to look more conversational
-        response = response.strip()
+        # Ensure response is not empty and format it
         if response:
             st.session_state.history.append(f"Chatty: {response}")
         
