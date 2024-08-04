@@ -19,12 +19,23 @@ model, tokenizer = load_model_and_tokenizer(model_name)
 def generate_response(user_input):
     if model is None or tokenizer is None:
         return "Model or tokenizer not loaded."
-
+    
     try:
-        # Encode input text
+        # Encode the input text
         inputs = tokenizer.encode(user_input, return_tensors="pt")
+        
         # Generate response
-        outputs = model.generate(inputs, max_length=150, num_beams=5, early_stopping=True)
+        outputs = model.generate(
+            inputs,
+            max_length=150,
+            num_beams=5,
+            early_stopping=True,
+            no_repeat_ngram_size=2,  # Avoid repeating phrases of size 2 or more
+            top_p=0.95,              # Nucleus sampling to limit unlikely words
+            temperature=0.7,         # Controls randomness of predictions (lower is more deterministic)
+            pad_token_id=tokenizer.eos_token_id  # Ensures correct padding token
+        )
+        
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
         return response
     except Exception as e:
@@ -46,4 +57,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
