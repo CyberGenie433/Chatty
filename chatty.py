@@ -16,43 +16,55 @@ def load_model_and_tokenizer(model_name):
 
 model, tokenizer = load_model_and_tokenizer(model_name)
 
-def generate_response(user_input):
+def generate_response(user_input, conversation_history):
     if model is None or tokenizer is None:
         return "Model or tokenizer not loaded."
     
     try:
-        # Encode the input text
-        inputs = tokenizer.encode(user_input, return_tensors="pt")
+        # Append user input to conversation history
+        conversation_history.append(f"User: {user_input}")
+        conversation_text = "\n".join(conversation_history)
+        
+        # Encode the conversation history
+        inputs = tokenizer.encode(conversation_text, return_tensors="pt")
         
         # Generate response
         outputs = model.generate(
             inputs,
-            max_length=150,
+            max_length=500,          # Adjusted length to accommodate more context
             num_beams=5,
-            early_stopping=True,
-            no_repeat_ngram_size=2,  # Avoid repeating phrases of size 2 or more
-            top_p=0.95,              # Nucleus sampling to limit unlikely words
-            temperature=0.7,         # Controls randomness of predictions (lower is more deterministic)
-            pad_token_id=tokenizer.eos_token_id  # Ensures correct padding token
+            no_repeat_ngram_size=2,
+            top_p=0.92,
+            temperature=0.7,
+            pad_token_id=tokenizer.eos_token_id,
+            early_stopping=True
         )
         
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        # Extract the latest response from the conversation
+        response = response.split("\n")[-1].replace("User:", "").strip()
+        conversation_history.append(f"Chatbot: {response}")
+        
         return response
     except Exception as e:
         return f"Error generating response: {e}"
 
 # Streamlit app
 def main():
-    st.title("Mental Health Chatbot")
-
-    st.write("### Welcome to the Mental Health Chatbot")
+    st.title("Intelligent Mental Health Chatbot")
+    st.write("### Welcome to the Intelligent Mental Health Chatbot")
     st.write("I'm here to listen. Type your message below and I'll do my best to respond.")
-
+    
+    # Initialize session state for conversation history
+    if 'conversation_history' not in st.session_state:
+        st.session_state.conversation_history = []
+    
     # Input from user
     user_input = st.text_input("You:", "")
-
+    
     if user_input:
-        response_text = generate_response(user_input)
+        response_text = generate_response(user_input, st.session_state.conversation_history)
         st.write(f"**Chatbot:** {response_text}")
 
 if __name__ == "__main__":
