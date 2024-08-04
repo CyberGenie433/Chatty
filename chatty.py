@@ -1,20 +1,14 @@
 import streamlit as st
-from transformers import T5ForConditionalGeneration, T5Tokenizer
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import torch
 
-# Load pre-trained T5 model and tokenizer
-model_name = "t5-small"
+# Load pre-trained GPT-2 model and tokenizer
+model_name = "gpt2"  # You can use "gpt2-medium", "gpt2-large", or "gpt2-xl" for larger models
 
 def load_model_and_tokenizer(model_name):
     try:
-        import sentencepiece  # Check if SentencePiece is installed
-    except ImportError:
-        st.error("SentencePiece library is not installed. Please install it using 'pip install sentencepiece'.")
-        return None, None
-    
-    try:
-        model = T5ForConditionalGeneration.from_pretrained(model_name)
-        tokenizer = T5Tokenizer.from_pretrained(model_name)
+        model = GPT2LMHeadModel.from_pretrained(model_name)
+        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
         return model, tokenizer
     except Exception as e:
         st.error(f"Error loading model or tokenizer: {e}")
@@ -25,11 +19,10 @@ model, tokenizer = load_model_and_tokenizer(model_name)
 def generate_response(user_input):
     if model is None or tokenizer is None:
         return "Model or tokenizer not loaded."
-    
+
     try:
-        # Prepare input text for T5
-        input_text = f"chat: {user_input}"
-        inputs = tokenizer.encode(input_text, return_tensors="pt")
+        # Encode input text
+        inputs = tokenizer.encode(user_input, return_tensors="pt")
         # Generate response
         outputs = model.generate(inputs, max_length=150, num_beams=5, early_stopping=True)
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -53,3 +46,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
