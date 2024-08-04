@@ -16,11 +16,18 @@ def load_model_and_tokenizer(model_name):
 
 model, tokenizer = load_model_and_tokenizer(model_name)
 
-# Bing Search API setup
-BING_SEARCH_API_KEY = st.secrets["BING_SEARCH_API_KEY"]
+# Fetch API key from secrets
+try:
+    BING_SEARCH_API_KEY = st.secrets["BING_SEARCH_API_KEY"]
+except KeyError:
+    st.error("API key not found in secrets. Please configure the secret correctly.")
+    BING_SEARCH_API_KEY = None
+
 BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
 
 def search_web(query):
+    if not BING_SEARCH_API_KEY:
+        return {}
     headers = {"Ocp-Apim-Subscription-Key": BING_SEARCH_API_KEY}
     params = {"q": query, "count": 5}
     try:
