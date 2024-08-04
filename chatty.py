@@ -7,6 +7,12 @@ model_name = "t5-small"
 
 def load_model_and_tokenizer(model_name):
     try:
+        import sentencepiece
+    except ImportError:
+        st.error("SentencePiece library is not installed. Please install it using 'pip install sentencepiece'.")
+        return None, None
+    
+    try:
         model = T5ForConditionalGeneration.from_pretrained(model_name)
         tokenizer = T5Tokenizer.from_pretrained(model_name)
         return model, tokenizer
@@ -45,4 +51,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
