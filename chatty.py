@@ -1,7 +1,6 @@
 import streamlit as st
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import requests
-import json
 
 # Load pre-trained GPT-2 model and tokenizer
 model_name = "gpt2"
@@ -44,7 +43,7 @@ def generate_response(user_input, conversation_history):
         # Generate response
         outputs = model.generate(
             inputs,
-            max_new_tokens=150,  # Use max_new_tokens to limit the output length
+            max_new_tokens=1024,  # Allowing up to 1024 new tokens in the response
             num_beams=5,
             no_repeat_ngram_size=2,
             top_p=0.92,
