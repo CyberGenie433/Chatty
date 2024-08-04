@@ -57,7 +57,7 @@ def generate_response(prompt, web_data=None):
             num_beams=5,
             no_repeat_ngram_size=2,
             top_p=0.92,
-            temperature=0.5,
+            temperature=0.7,  # Adjust temperature for better coherence
             pad_token_id=tokenizer.eos_token_id,
             early_stopping=True
         )
@@ -76,6 +76,7 @@ def main():
     user_input = st.text_input("You:", "")
     
     if user_input:
+        # Perform web search if applicable
         if "search" in user_input.lower():
             query = user_input.replace("search", "").strip()
             web_data = search_web(query)
