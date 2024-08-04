@@ -29,16 +29,14 @@ def generate_response(prompt, web_data):
     try:
         # Create a prompt for GPT-3 with web search results
         full_prompt = f"Based on the following information: {web_data}\n\nAnswer the question: {prompt}"
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # or "gpt-4" if available
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": full_prompt}
-            ],
+        response = openai.Completion.create(
+            model="text-davinci-003",  # Use "text-davinci-003" or "gpt-4" if available
+            prompt=full_prompt,
             max_tokens=150,
-            temperature=0.7
+            temperature=0.7,
+            stop=["\n"]
         )
-        return response.choices[0].message['content'].strip()
+        return response.choices[0].text.strip()
     except Exception as e:
         st.error(f"Error generating response: {e}")
         return "Sorry, I couldn't generate a response."
