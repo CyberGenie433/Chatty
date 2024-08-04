@@ -11,6 +11,7 @@ st.write("## This is a header")
 st.write("This is a simple text example using `st.write()`.")
 
 # Simplified and validated data for DataFrame
+# Explicitly convert numpy arrays to lists
 data = {
     "Column 1": np.array([1, 2, 3, 4]).tolist(),
     "Column 2": np.array([10, 20, 30, 40]).tolist()
