@@ -17,16 +17,20 @@ def load_model_and_tokenizer(model_name):
 model, tokenizer = load_model_and_tokenizer(model_name)
 
 # Bing Search API setup
-BING_SEARCH_API_KEY = "YOUR_BING_SEARCH_API_KEY"
+BING_SEARCH_API_KEY = st.secrets["BING_SEARCH_API_KEY"]
 BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
 
 def search_web(query):
     headers = {"Ocp-Apim-Subscription-Key": BING_SEARCH_API_KEY}
     params = {"q": query, "count": 5}
-    response = requests.get(BING_SEARCH_ENDPOINT, headers=headers, params=params)
-    response.raise_for_status()
-    search_results = response.json()
-    return search_results
+    try:
+        response = requests.get(BING_SEARCH_ENDPOINT, headers=headers, params=params)
+        response.raise_for_status()
+        search_results = response.json()
+        return search_results
+    except Exception as e:
+        st.error(f"Error fetching search results: {e}")
+        return {}
 
 def generate_response(user_input, response_type):
     if model is None or tokenizer is None:
@@ -57,13 +61,13 @@ def generate_response(user_input, response_type):
         # Ensure the response addresses the user query
         response = response.replace(prompt, "").strip()
         
-        return response
+        return response if response else "Sorry, I couldn't generate a response."
     except Exception as e:
         return f"Error generating response: {e}"
 
 def get_external_information(query):
     search_results = search_web(query)
-    if "webPages" in search_results:
+    if "webPages" in search_results and search_results["webPages"]["value"]:
         snippets = [result["snippet"] for result in search_results["webPages"]["value"]]
         return " ".join(snippets)
     return "No relevant information found."
