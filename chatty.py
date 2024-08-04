@@ -38,11 +38,13 @@ def generate_response(user_input, conversation_history):
         conversation_history.append(f"User: {user_input}")
         conversation_text = "\n".join(conversation_history)
         
-        # Generate response from GPT-2
+        # Encode the conversation history
         inputs = tokenizer.encode(conversation_text, return_tensors="pt")
+        
+        # Generate response
         outputs = model.generate(
             inputs,
-            max_length=500,
+            max_new_tokens=150,  # Use max_new_tokens to limit the output length
             num_beams=5,
             no_repeat_ngram_size=2,
             top_p=0.92,
@@ -50,6 +52,7 @@ def generate_response(user_input, conversation_history):
             pad_token_id=tokenizer.eos_token_id,
             early_stopping=True
         )
+        
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
         
         # Extract the latest response from the conversation
