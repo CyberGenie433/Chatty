@@ -10,7 +10,6 @@ model = GPT2LMHeadModel.from_pretrained(model_name)
 # Function to get API key from Streamlit secrets or environment variables
 def get_api_key():
     try:
-        # Try to retrieve the API key from Streamlit secrets
         api_key = st.secrets["bing"]["api_key"]
         if not api_key:
             raise ValueError("API key is empty.")
@@ -44,7 +43,7 @@ def search_web(query):
 
 # Function to generate a response using GPT-2
 def generate_response(prompt, web_data=None):
-    refined_prompt = f"Provide a detailed and accurate answer to the following question: {prompt}"
+    refined_prompt = f"Answer the following question accurately: {prompt}"
     if web_data:
         refined_prompt = f"Based on the following information: {web_data}\n\n{refined_prompt}"
     
@@ -57,7 +56,7 @@ def generate_response(prompt, web_data=None):
             num_beams=5,
             no_repeat_ngram_size=2,
             top_p=0.92,
-            temperature=0.7,  # Adjust temperature for better coherence
+            temperature=0.7,
             pad_token_id=tokenizer.eos_token_id,
             early_stopping=True
         )
@@ -71,7 +70,7 @@ def generate_response(prompt, web_data=None):
 def main():
     st.title("Enhanced GPT-2 Chatbot")
 
-    st.write("Ask a specific question below, and the chatbot will respond using GPT-2. Optionally, it can use web search data for better accuracy.")
+    st.write("Ask any specific question below. The chatbot will respond using GPT-2 and optionally provide additional information from web search.")
 
     user_input = st.text_input("You:", "")
     
