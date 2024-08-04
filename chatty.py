@@ -28,7 +28,7 @@ def search_web(query):
     search_results = response.json()
     return search_results
 
-def generate_response(user_input, conversation_history):
+def generate_response(user_input, conversation_history, response_type):
     if model is None or tokenizer is None:
         return "Model or tokenizer not loaded."
     
@@ -41,9 +41,10 @@ def generate_response(user_input, conversation_history):
         inputs = tokenizer.encode(conversation_text, return_tensors="pt")
         
         # Generate response
+        max_new_tokens = 150 if response_type == "brief" else 1024
         outputs = model.generate(
             inputs,
-            max_new_tokens=1024,  # Allowing up to 1024 new tokens in the response
+            max_new_tokens=max_new_tokens,  # Limit response length
             num_beams=5,
             no_repeat_ngram_size=2,
             top_p=0.92,
@@ -74,7 +75,7 @@ def main():
     st.title("Smart Chatbot with Web Integration")
 
     st.write("### Welcome to the Smart Chatbot")
-    st.write("I'm here to assist you and can look up information from the web if needed. Type your message below.")
+    st.write("I'm here to assist you. Type your message below, and specify if you want a brief or detailed answer.")
 
     # Initialize session state for conversation history
     if 'conversation_history' not in st.session_state:
@@ -84,13 +85,14 @@ def main():
     user_input = st.text_input("You:", "")
     
     if user_input:
-        # Check if user input requires web search
+        response_type = "brief" if "brief" in user_input.lower() else "detailed"
+        
         if "search" in user_input.lower():
             query = user_input.replace("search", "").strip()
             external_info = get_external_information(query)
             st.write(f"**Chatbot (Web Info):** {external_info}")
         else:
-            response_text = generate_response(user_input, st.session_state.conversation_history)
+            response_text = generate_response(user_input, st.session_state.conversation_history, response_type)
             st.write(f"**Chatbot:** {response_text}")
 
 if __name__ == "__main__":
