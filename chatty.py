@@ -16,9 +16,8 @@ data = {
     "Column 2": np.array([10, 20, 30, 40]).tolist()
 }
 
-# Debugging prints
-st.write("### Data Types")
-st.write({k: type(v) for k, v in data.items()})
+# Initialize df as None
+df = None
 
 # Create and display DataFrame
 try:
@@ -54,4 +53,3 @@ st.write("""
 # Writing a dictionary
 st.write("### Here is a dictionary")
 st.write({"name": "Tommy", "age": 10})
-
