@@ -15,7 +15,9 @@ data = {
     "Column 2": [10, 20, 30, 40]
 }
 
-# Validate data
+df = None  # Initialize df as None
+
+# Validate data and create DataFrame
 if isinstance(data, dict) and all(isinstance(v, list) for v in data.values()):
     try:
         df = pd.DataFrame(data)
@@ -28,12 +30,15 @@ else:
 
 # Writing charts
 st.write("### Here is a chart")
-try:
-    fig, ax = plt.subplots()
-    ax.plot(df["Column 1"], df["Column 2"])
-    st.pyplot(fig)  # Use st.pyplot for Matplotlib figures
-except Exception as e:
-    st.write(f"Error creating chart: {e}")
+if df is not None:
+    try:
+        fig, ax = plt.subplots()
+        ax.plot(df["Column 1"], df["Column 2"])
+        st.pyplot(fig)  # Use st.pyplot for Matplotlib figures
+    except Exception as e:
+        st.write(f"Error creating chart: {e}")
+else:
+    st.write("DataFrame was not created, so the chart cannot be displayed.")
 
 # Writing markdown
 st.write("### This is markdown")
