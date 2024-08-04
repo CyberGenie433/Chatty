@@ -1,81 +1,33 @@
 import streamlit as st
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
-import requests
+import openai
 
-# Load pre-trained GPT-2 model and tokenizer
-model_name = "gpt2"
+# Load OpenAI API key from secrets
+openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
-def load_model_and_tokenizer(model_name):
+def generate_response(prompt):
     try:
-        model = GPT2LMHeadModel.from_pretrained(model_name)
-        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-        return model, tokenizer
-    except Exception as e:
-        st.error(f"Error loading model or tokenizer: {e}")
-        return None, None
-
-model, tokenizer = load_model_and_tokenizer(model_name)
-
-# Fetch API key from secrets
-BING_SEARCH_API_KEY = st.secrets.get("BING_SEARCH_API_KEY")
-
-def search_web(query):
-    if not BING_SEARCH_API_KEY:
-        return "API key not found."
-    
-    headers = {"Ocp-Apim-Subscription-Key": BING_SEARCH_API_KEY}
-    params = {"q": query, "count": 5}
-    try:
-        response = requests.get("https://api.bing.microsoft.com/v7.0/search", headers=headers, params=params)
-        response.raise_for_status()
-        search_results = response.json()
-        if "webPages" in search_results and search_results["webPages"]["value"]:
-            snippets = [result["snippet"] for result in search_results["webPages"]["value"]]
-            return " ".join(snippets)
-        return "No relevant information found."
-    except Exception as e:
-        return f"Error fetching search results: {e}"
-
-def generate_response(user_input):
-    if model is None or tokenizer is None:
-        return "Model or tokenizer not loaded."
-    
-    try:
-        # Prepare the input prompt with specific instructions
-        prompt = f"Provide a precise and specific answer to the following question: {user_input}"
-        inputs = tokenizer.encode(prompt, return_tensors="pt")
-        outputs = model.generate(
-            inputs,
-            max_new_tokens=150,  # Length of the answer
-            num_beams=5,
-            no_repeat_ngram_size=2,
-            top_p=0.92,
-            temperature=0.7,
-            pad_token_id=tokenizer.eos_token_id,
-            early_stopping=True
+        response = openai.Completion.create(
+            engine="text-davinci-003",  # or use "text-davinci-002" or other available models
+            prompt=prompt,
+            max_tokens=150,
+            temperature=0.7
         )
-        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        # Return the response, ensuring it's specific and relevant
-        return response.replace(prompt, "").strip() or "Sorry, I couldn't generate a specific answer."
+        return response.choices[0].text.strip()
     except Exception as e:
-        return f"Error generating response: {e}"
+        st.error(f"Error generating response: {e}")
+        return "Sorry, I couldn't generate a response."
 
 def main():
-    st.title("Specific Answer Chatbot")
+    st.title("GPT-3 Specific Answer Chatbot")
 
-    st.write("Ask a specific question below. Specify 'search' to look up information online.")
+    st.write("Ask a specific question below. The chatbot will provide an answer using GPT-3.")
 
     user_input = st.text_input("You:", "")
     
     if user_input:
-        if "search" in user_input.lower():
-            query = user_input.replace("search", "").strip()
-            external_info = search_web(query)
-            st.write(f"**Chatbot (Web Info):** {external_info}")
-        else:
-            response_text = generate_response(user_input)
-            st.write(f"**Chatbot:** {response_text}")
+        prompt = f"Provide a specific and accurate answer to the following question: {user_input}"
+        response_text = generate_response(prompt)
+        st.write(f"**Chatbot:** {response_text}")
 
 if __name__ == "__main__":
     main()
