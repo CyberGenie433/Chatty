@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 # Title of the app
 st.title("Streamlit st.write() Demonstration")
@@ -11,10 +13,11 @@ st.write("This is a simple text example using `st.write()`.")
 
 # Simplified and validated data for DataFrame
 data = {
-    "Column 1": [1, 2, 3, 4],
-    "Column 2": [10, 20, 30, 40]
+    "Column 1": np.array([1, 2, 3, 4]).tolist(),
+    "Column 2": np.array([10, 20, 30, 40]).tolist()
 }
 
+df = pd.DataFrame(data)
 # Debugging prints
 st.write("### Data Types")
 st.write({k: type(v) for k, v in data.items()})
