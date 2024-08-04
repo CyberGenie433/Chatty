@@ -1,12 +1,16 @@
 import streamlit as st
-import openai
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import requests
 
-# Load API keys from secrets
-openai.api_key = st.secrets.get("OPENAI_API_KEY")
-BING_SEARCH_API_KEY = st.secrets.get("BING_SEARCH_API_KEY")
+# Load pre-trained GPT-2 model and tokenizer
+model_name = "gpt2"
+tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+model = GPT2LMHeadModel.from_pretrained(model_name)
 
-# Function to perform web search
+# Bing Search API setup
+BING_SEARCH_API_KEY = st.secrets.get("BING_SEARCH_API_KEY")
+BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
+
 def search_web(query):
     if not BING_SEARCH_API_KEY:
         return "API key not found."
@@ -14,7 +18,7 @@ def search_web(query):
     headers = {"Ocp-Apim-Subscription-Key": BING_SEARCH_API_KEY}
     params = {"q": query, "count": 5}
     try:
-        response = requests.get("https://api.bing.microsoft.com/v7.0/search", headers=headers, params=params)
+        response = requests.get(BING_SEARCH_ENDPOINT, headers=headers, params=params)
         response.raise_for_status()
         search_results = response.json()
         if "webPages" in search_results and search_results["webPages"]["value"]:
@@ -24,25 +28,28 @@ def search_web(query):
     except Exception as e:
         return f"Error fetching search results: {e}"
 
-# Function to generate response using GPT-3
 def generate_response(prompt, web_data):
+    full_prompt = f"Based on the following information: {web_data}\n\nAnswer the question: {prompt}"
+    inputs = tokenizer.encode(full_prompt, return_tensors="pt")
     try:
-        # Create a prompt for GPT-3 with web search results
-        full_prompt = f"Based on the following information: {web_data}\n\nAnswer the question: {prompt}"
-        response = openai.Completion.create(
-            model="text-davinci-003",  # Use "text-davinci-003" or "gpt-4" if available
-            prompt=full_prompt,
-            max_tokens=150,
+        outputs = model.generate(
+            inputs,
+            max_length=150,
+            num_beams=5,
+            no_repeat_ngram_size=2,
+            top_p=0.92,
             temperature=0.7,
-            stop=["\n"]
+            pad_token_id=tokenizer.eos_token_id,
+            early_stopping=True
         )
-        return response.choices[0].text.strip()
+        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        return response
     except Exception as e:
         st.error(f"Error generating response: {e}")
         return "Sorry, I couldn't generate a response."
 
 def main():
-    st.title("Enhanced Chatbot with Web Search")
+    st.title("GPT-2 Enhanced Chatbot with Web Search")
 
     st.write("Ask a specific question below. The chatbot will search the web for information and provide an answer.")
 
