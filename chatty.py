@@ -1,42 +1,37 @@
 import streamlit as st
-import openai
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# Set your OpenAI API key
-openai.api_key = 'your-openai-api-key'
+# Title of the app
+st.title("Streamlit st.write() Demonstration")
 
-# Define a function to get a response from GPT
-def get_gpt_response(messages):
-    response = openai.ChatCompletion.create(
-        model="gpt-4",  # You can use gpt-3.5-turbo or gpt-4
-        messages=messages,
-        max_tokens=150,
-        temperature=0.7
-    )
-    return response.choices[0].message['content'].strip()
+# Writing text
+st.write("## This is a header")
+st.write("This is a simple text example using `st.write()`.")
 
-# Streamlit app code
-st.title("Mental Health Chatbot")
+# Writing dataframes
+data = {
+    "Column 1": [1, 2, 3, 4],
+    "Column 2": [10, 20, 30, 40]
+}
+df = pd.DataFrame(data)
+st.write("### Here is a dataframe")
+st.write(df)
 
-# Initialize session state if not already done
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
+# Writing charts
+st.write("### Here is a chart")
+fig, ax = plt.subplots()
+ax.plot(df["Column 1"], df["Column 2"])
+st.write(fig)
 
-# Create a text input for user to type messages
-user_input = st.text_input("You:", "")
+# Writing markdown
+st.write("### This is markdown")
+st.write("""
+* Item 1
+* Item 2
+* Item 3
+""")
 
-if st.button("Send"):
-    if user_input:
-        # Add the user's message to the conversation history
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        
-        # Get the response from GPT
-        response = get_gpt_response(st.session_state.messages)
-        
-        # Add the bot's response to the conversation history
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        
-        # Display the conversation
-        conversation = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state.messages])
-        st.text_area("Conversation", value=conversation, height=300)
-    else:
-        st.warning("Please enter a message before clicking 'Send'.")
+# Writing a dictionary
+st.write("### Here is a dictionary")
+st.write({"name": "Tommy", "age": 10})
