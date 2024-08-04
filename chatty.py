@@ -41,26 +41,30 @@ def generate_response(user_input):
         return "Model or tokenizer not loaded."
     
     try:
-        prompt = f"Answer the following question: {user_input}"
+        # Prepare the input prompt with specific instructions
+        prompt = f"Provide a precise and specific answer to the following question: {user_input}"
         inputs = tokenizer.encode(prompt, return_tensors="pt")
         outputs = model.generate(
             inputs,
-            max_new_tokens=150,  # Fixed response length for simplicity
+            max_new_tokens=150,  # Length of the answer
             num_beams=5,
             no_repeat_ngram_size=2,
             top_p=0.92,
             temperature=0.7,
-            pad_token_id=tokenizer.eos_token_id
+            pad_token_id=tokenizer.eos_token_id,
+            early_stopping=True
         )
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return response.replace(prompt, "").strip() or "Sorry, I couldn't generate a response."
+        
+        # Return the response, ensuring it's specific and relevant
+        return response.replace(prompt, "").strip() or "Sorry, I couldn't generate a specific answer."
     except Exception as e:
         return f"Error generating response: {e}"
 
 def main():
-    st.title("Simplified Chatbot")
+    st.title("Specific Answer Chatbot")
 
-    st.write("Ask a question below. Specify 'search' to look up information online.")
+    st.write("Ask a specific question below. Specify 'search' to look up information online.")
 
     user_input = st.text_input("You:", "")
     
