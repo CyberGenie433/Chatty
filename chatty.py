@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 # Title of the app
 st.title("Streamlit st.write() Demonstration")
 
@@ -17,14 +16,11 @@ data = {
     "Column 2": np.array([10, 20, 30, 40]).tolist()
 }
 
-df = pd.DataFrame(data)
 # Debugging prints
 st.write("### Data Types")
 st.write({k: type(v) for k, v in data.items()})
 
-df = None
-
-# Validate and create DataFrame
+# Create and display DataFrame
 try:
     df = pd.DataFrame(data)
     st.write("### Here is a dataframe")
@@ -34,7 +30,7 @@ except Exception as e:
 
 # Writing charts
 st.write("### Here is a chart")
-if df is not None:
+if df is not None and not df.empty:
     try:
         fig, ax = plt.subplots()
         ax.plot(df["Column 1"], df["Column 2"], marker='o')
@@ -45,7 +41,7 @@ if df is not None:
     except Exception as e:
         st.write(f"Error creating chart: {e}")
 else:
-    st.write("DataFrame was not created, so the chart cannot be displayed.")
+    st.write("DataFrame was not created or is empty, so the chart cannot be displayed.")
 
 # Writing markdown
 st.write("### This is markdown")
