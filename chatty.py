@@ -28,17 +28,16 @@ def search_web(query):
     search_results = response.json()
     return search_results
 
-def generate_response(user_input, conversation_history, response_type):
+def generate_response(user_input, response_type):
     if model is None or tokenizer is None:
         return "Model or tokenizer not loaded."
     
     try:
-        # Append user input to conversation history
-        conversation_history.append(f"User: {user_input}")
-        conversation_text = "\n".join(conversation_history)
+        # Prepare the input prompt
+        prompt = f"Answer the following question: {user_input}"
         
-        # Encode the conversation history
-        inputs = tokenizer.encode(conversation_text, return_tensors="pt")
+        # Encode the input prompt
+        inputs = tokenizer.encode(prompt, return_tensors="pt")
         
         # Generate response
         max_new_tokens = 150 if response_type == "brief" else 1024
@@ -55,9 +54,8 @@ def generate_response(user_input, conversation_history, response_type):
         
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
         
-        # Extract the latest response from the conversation
-        response = response.split("\n")[-1].replace("User:", "").strip()
-        conversation_history.append(f"Chatbot: {response}")
+        # Ensure the response addresses the user query
+        response = response.replace(prompt, "").strip()
         
         return response
     except Exception as e:
@@ -72,10 +70,10 @@ def get_external_information(query):
 
 # Streamlit app
 def main():
-    st.title("Smart Chatbot with Web Integration")
+    st.title("Focused Chatbot")
 
-    st.write("### Welcome to the Smart Chatbot")
-    st.write("I'm here to assist you. Type your message below, and specify if you want a brief or detailed answer.")
+    st.write("### Welcome to the Focused Chatbot")
+    st.write("Ask a specific question below. Specify 'brief' for short answers or 'detailed' for long answers.")
 
     # Initialize session state for conversation history
     if 'conversation_history' not in st.session_state:
@@ -92,7 +90,7 @@ def main():
             external_info = get_external_information(query)
             st.write(f"**Chatbot (Web Info):** {external_info}")
         else:
-            response_text = generate_response(user_input, st.session_state.conversation_history, response_type)
+            response_text = generate_response(user_input, response_type)
             st.write(f"**Chatbot:** {response_text}")
 
 if __name__ == "__main__":
