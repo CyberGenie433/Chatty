@@ -14,15 +14,26 @@ data = {
     "Column 1": [1, 2, 3, 4],
     "Column 2": [10, 20, 30, 40]
 }
-df = pd.DataFrame(data)
-st.write("### Here is a dataframe")
-st.write(df)
+
+# Validate data
+if isinstance(data, dict) and all(isinstance(v, list) for v in data.values()):
+    try:
+        df = pd.DataFrame(data)
+        st.write("### Here is a dataframe")
+        st.write(df)
+    except Exception as e:
+        st.write(f"Error creating DataFrame: {e}")
+else:
+    st.write("Data format is incorrect. Ensure data is a dictionary with lists as values.")
 
 # Writing charts
 st.write("### Here is a chart")
-fig, ax = plt.subplots()
-ax.plot(df["Column 1"], df["Column 2"])
-st.write(fig)
+try:
+    fig, ax = plt.subplots()
+    ax.plot(df["Column 1"], df["Column 2"])
+    st.pyplot(fig)  # Use st.pyplot for Matplotlib figures
+except Exception as e:
+    st.write(f"Error creating chart: {e}")
 
 # Writing markdown
 st.write("### This is markdown")
@@ -35,3 +46,4 @@ st.write("""
 # Writing a dictionary
 st.write("### Here is a dictionary")
 st.write({"name": "Tommy", "age": 10})
+
