@@ -9,18 +9,20 @@ st.title("Streamlit st.write() Demonstration")
 st.write("## This is a header")
 st.write("This is a simple text example using `st.write()`.")
 
-# Simplified data for DataFrame creation
+# Simplified and validated data for DataFrame
 data = {
     "Column 1": [1, 2, 3, 4],
     "Column 2": [10, 20, 30, 40]
 }
 
-# Initialize DataFrame as None
+# Debugging prints
+st.write("### Data Types")
+st.write({k: type(v) for k, v in data.items()})
+
 df = None
 
-# Attempt to create DataFrame
+# Validate and create DataFrame
 try:
-    # Convert data to DataFrame
     df = pd.DataFrame(data)
     st.write("### Here is a dataframe")
     st.write(df)
