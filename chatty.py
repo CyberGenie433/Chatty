@@ -1,4 +1,3 @@
-
 import streamlit as st
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import torch
@@ -8,7 +7,7 @@ model_name = "t5-small"
 
 def load_model_and_tokenizer(model_name):
     try:
-        import sentencepiece
+        import sentencepiece  # Check if SentencePiece is installed
     except ImportError:
         st.error("SentencePiece library is not installed. Please install it using 'pip install sentencepiece'.")
         return None, None
@@ -28,8 +27,10 @@ def generate_response(user_input):
         return "Model or tokenizer not loaded."
     
     try:
+        # Prepare input text for T5
         input_text = f"chat: {user_input}"
         inputs = tokenizer.encode(input_text, return_tensors="pt")
+        # Generate response
         outputs = model.generate(inputs, max_length=150, num_beams=5, early_stopping=True)
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
         return response
