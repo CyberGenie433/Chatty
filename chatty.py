@@ -7,8 +7,10 @@ model_name = "gpt2"
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
 
+# Access API key from Streamlit secrets
+BING_SEARCH_API_KEY = st.secrets.get("bing", {}).get("api_key")
+
 # Bing Search API setup
-BING_SEARCH_API_KEY = st.secrets.get("BING_SEARCH_API_KEY")
 BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
 
 def search_web(query):
