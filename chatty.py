@@ -1,18 +1,33 @@
 import streamlit as st
 from transformers import T5ForConditionalGeneration, T5Tokenizer
+import torch
 
 # Load pre-trained T5 model and tokenizer
-model_name = "t5-small"  # You can use "t5-base" or "t5-large" for better performance
-model = T5ForConditionalGeneration.from_pretrained(model_name)
-tokenizer = T5Tokenizer.from_pretrained(model_name)
+model_name = "t5-small"
 
-# Function to generate a response from the T5 model
+def load_model_and_tokenizer(model_name):
+    try:
+        model = T5ForConditionalGeneration.from_pretrained(model_name)
+        tokenizer = T5Tokenizer.from_pretrained(model_name)
+        return model, tokenizer
+    except Exception as e:
+        st.error(f"Error loading model or tokenizer: {e}")
+        return None, None
+
+model, tokenizer = load_model_and_tokenizer(model_name)
+
 def generate_response(user_input):
-    input_text = f"chat: {user_input}"
-    inputs = tokenizer.encode(input_text, return_tensors="pt")
-    outputs = model.generate(inputs, max_length=150, num_beams=5, early_stopping=True)
-    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    return response
+    if model is None or tokenizer is None:
+        return "Model or tokenizer not loaded."
+    
+    try:
+        input_text = f"chat: {user_input}"
+        inputs = tokenizer.encode(input_text, return_tensors="pt")
+        outputs = model.generate(inputs, max_length=150, num_beams=5, early_stopping=True)
+        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        return response
+    except Exception as e:
+        return f"Error generating response: {e}"
 
 # Streamlit app
 def main():
