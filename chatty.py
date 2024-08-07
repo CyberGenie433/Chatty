@@ -29,7 +29,7 @@ conversation_chain = ConversationChain(
 st.title("🌍 Careconnect Chatbot")
 st.write("Hello! I'm 🌍 Careconnect. How can I assist you today?")
 
-# Initialize session state for conversation history
+# Initialize session state for conversation history if not already
 if 'history' not in st.session_state:
     st.session_state.history = []
 
@@ -38,21 +38,24 @@ for message in st.session_state.history:
     st.write(message)
 
 # Input text from user
-user_input = st.text_input("Your message:")
+user_input = st.text_area("Your message:", "")
 
 if st.button("Send"):
     if user_input:
-        # Add user message to history
-        st.session_state.history.append(f"User: {user_input}")
-        
-        # Get the response from LangChain
-        bot_response = conversation_chain.run(user_input)
-        
-        # Add bot response to history
-        st.session_state.history.append(f"🌍 Careconnect: {bot_response}")
-        
-        # Display the response
-        st.write(f"🌍 Careconnect: {bot_response}")
+        try:
+            # Add user message to history
+            st.session_state.history.append(f"User: {user_input}")
+            
+            # Get the response from LangChain
+            bot_response = conversation_chain.run(user_input)
+            
+            # Add bot response to history
+            st.session_state.history.append(f"🌍 Careconnect: {bot_response}")
+            
+            # Display the response
+            st.write(f"🌍 Careconnect: {bot_response}")
+        except Exception as e:
+            st.write(f"An error occurred: {e}")
     else:
         st.write("Please enter a message to get a response.")
 
