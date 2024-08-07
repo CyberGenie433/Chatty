@@ -1,24 +1,31 @@
 import streamlit as st
 import openai
-import os
+from langchain import OpenAI, ConversationChain
+from langchain.chains import ConversationChain
+from langchain.prompts import ChatPromptTemplate
 
 # Set your OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def get_openai_response(prompt):
-    try:
-        response = openai.Completion.create(
-            model="text-davinci-003",  # You can use other models like "gpt-3.5-turbo" if needed
-            prompt=prompt,
-            max_tokens=150,
-            temperature=0.7
-        )
-        return response.choices[0].text.strip()
-    except Exception as e:
-        return f"Error: {str(e)}"
+# Initialize LangChain components
+llm = OpenAI(model_name="text-davinci-003", api_key=openai.api_key)
+
+# Define the prompt template for conversation
+prompt_template = ChatPromptTemplate(
+    system_message="You are 🌍 Careconnect, a helpful assistant.",
+    user_message="{user_input}",
+    assistant_message="{bot_response}"
+)
+
+# Create the conversation chain
+conversation_chain = ConversationChain(
+    llm=llm,
+    prompt_template=prompt_template,
+    history_length=5  # Adjust based on how many past interactions to keep
+)
 
 # Streamlit app layout
-st.title("🌍 Careconnect - ChatBot")
+st.title("🌍 Careconnect Chatbot")
 st.write("Hello! I'm 🌍 Careconnect. How can I assist you today?")
 
 # Initialize session state for conversation history
@@ -37,12 +44,8 @@ if st.button("Send"):
         # Add user message to history
         st.session_state.history.append(f"User: {user_input}")
         
-        # Create a prompt for the model
-        history_text = "\n".join(st.session_state.history)
-        prompt = f"{history_text}\n🌍 Careconnect:"
-        
-        # Get the response from OpenAI
-        bot_response = get_openai_response(prompt)
+        # Get the response from LangChain
+        bot_response = conversation_chain.run(user_input)
         
         # Add bot response to history
         st.session_state.history.append(f"🌍 Careconnect: {bot_response}")
