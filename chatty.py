@@ -5,15 +5,15 @@ import os
 # Set up OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")  # Ensure this is set in your environment variables
 
-def get_response(prompt):
+def get_response(messages):
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",  # Use the appropriate engine
-            prompt=prompt,
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # Use the appropriate model
+            messages=messages,
             max_tokens=150,
             temperature=0.7
         )
-        return response.choices[0].text.strip()
+        return response.choices[0].message['content'].strip()
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
@@ -26,8 +26,11 @@ if 'history' not in st.session_state:
 
 def submit_message():
     if st.session_state.user_input:
-        prompt = f"You are Chatty, a mental health support chatbot. Respond empathetically and supportively to the following message: {st.session_state.user_input}"
-        response = get_response(prompt)
+        messages = [{"role": "system", "content": "You are Chatty, a mental health support chatbot. Respond empathetically and supportively."}]
+        messages.extend([{"role": "user", "content": chat["user"]} for chat in st.session_state.history])
+        messages.append({"role": "user", "content": st.session_state.user_input})
+        
+        response = get_response(messages)
         st.session_state.history.append({"user": st.session_state.user_input, "bot": response})
         st.session_state.user_input = ""  # Clear input field after submission
 
