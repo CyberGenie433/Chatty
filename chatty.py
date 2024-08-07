@@ -18,14 +18,23 @@ def get_response(prompt):
         return f"An error occurred: {str(e)}"
 
 # Streamlit UI
-st.title("Mental Health Chatbot")
+st.title("Chatty - Mental Health Chatbot")
 
-user_input = st.text_input("You:", "")
+# Define a state to store the chat history
+if 'history' not in st.session_state:
+    st.session_state.history = []
 
-if st.button("Send"):
-    if user_input:
-        prompt = f"You are a mental health support chatbot. Respond empathetically and supportively to the following message: {user_input}"
+def submit_message():
+    if st.session_state.user_input:
+        prompt = f"You are Chatty, a mental health support chatbot. Respond empathetically and supportively to the following message: {st.session_state.user_input}"
         response = get_response(prompt)
-        st.text_area("Bot:", response, height=150)
-    else:
-        st.warning("Please enter a message before pressing Send.")
+        st.session_state.history.append({"user": st.session_state.user_input, "bot": response})
+        st.session_state.user_input = ""  # Clear input field after submission
+
+# Text area for user input
+st.text_area("You:", key="user_input", on_change=submit_message, height=100)
+
+# Display chat history
+for chat in st.session_state.history:
+    st.text_area("You:", chat["user"], height=100, key=f"user_{chat['user']}")
+    st.text_area("Chatty:", chat["bot"], height=100, key=f"bot_{chat['bot']}", disabled=True)
