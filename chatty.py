@@ -12,7 +12,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 llm = OpenAI(
     model_name="text-davinci-003", 
     openai_api_key=openai.api_key,
-    temperature=0  # Set the temperature to 0.2
+    temperature=0  # Set the temperature to 0 for deterministic output
 )
 
 # Define the prompt template for conversation
@@ -62,4 +62,5 @@ if st.button("Send"):
             st.write(f"An error occurred: {e}")
     else:
         st.write("Please enter a message to get a response.")
+
 
