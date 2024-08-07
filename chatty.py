@@ -18,7 +18,7 @@ def get_response(messages):
         return f"An error occurred: {str(e)}"
 
 # Streamlit UI
-st.title("🌍Careconnect - Mental Health Chatbot")
+st.title("🌍Careconnect - Chatbot")
 
 # Define a state to store the chat history
 if 'history' not in st.session_state:
