@@ -1,8 +1,9 @@
 import streamlit as st
 import openai
-from langchain import OpenAI
+from langchain_community.llms import OpenAI
 from langchain.chains import ConversationChain
 from langchain.prompts import ChatPromptTemplate
+import os
 
 # Set your OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -54,3 +55,4 @@ if st.button("Send"):
         st.write(f"🌍 Careconnect: {bot_response}")
     else:
         st.write("Please enter a message to get a response.")
+
