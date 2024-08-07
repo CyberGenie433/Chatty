@@ -8,8 +8,12 @@ import os
 # Set your OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Initialize LangChain components
-llm = OpenAI(model_name="text-davinci-003", openai_api_key=openai.api_key)
+# Initialize LangChain components with temperature setting
+llm = OpenAI(
+    model_name="text-davinci-003", 
+    openai_api_key=openai.api_key,
+    temperature=0.2  # Set the temperature to 0.2
+)
 
 # Define the prompt template for conversation
 prompt_template = ChatPromptTemplate(
