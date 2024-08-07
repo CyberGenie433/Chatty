@@ -38,7 +38,8 @@ if st.button("Send"):
         st.session_state.history.append(f"User: {user_input}")
         
         # Create a prompt for the model
-        prompt = f"{'\n'.join(st.session_state.history)}\n🌍 Careconnect:"
+        history_text = "\n".join(st.session_state.history)
+        prompt = f"{history_text}\n🌍 Careconnect:"
         
         # Get the response from OpenAI
         bot_response = get_openai_response(prompt)
