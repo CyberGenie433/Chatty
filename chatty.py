@@ -41,3 +41,4 @@ st.text_input("You:", key="user_input", on_change=submit_message)
 for chat in st.session_state.history:
     st.text_area("You:", chat["user"], height=100, key=f"user_{chat['user']}", disabled=True)
     st.text_area("Chatty:", chat["bot"], height=100, key=f"bot_{chat['bot']}", disabled=True)
+
