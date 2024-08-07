@@ -18,7 +18,7 @@ def get_openai_response(prompt):
         return f"Error: {str(e)}"
 
 # Streamlit app layout
-st.title("🌍 Careconnect")
+st.title("🌍 Careconnect - ChatBot")
 st.write("Hello! I'm 🌍 Careconnect. How can I assist you today?")
 
 # Initialize session state for conversation history
