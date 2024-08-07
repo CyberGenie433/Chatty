@@ -54,4 +54,3 @@ if st.button("Send"):
         st.write(f"🌍 Careconnect: {bot_response}")
     else:
         st.write("Please enter a message to get a response.")
-
