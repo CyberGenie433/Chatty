@@ -1,19 +1,9 @@
-import streamlit as st
-import openai
-from langchain_community.llms import OpenAI
-from langchain.chains import ConversationChain
-from langchain.prompts import ChatPromptTemplate
-import os
+from langchain.chains import LLMChain
+from langchain.llms import OpenAI
+from langchain.prompts import PromptTemplate
 
 # Set your OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# Initialize LangChain components with temperature setting
-llm = OpenAI(
-    model_name="text-davinci-003", 
-    openai_api_key=openai.api_key,
-    temperature=0  # Set the temperature to 0 for deterministic output
-)
+llm = OpenAI(api_key='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')
 
 # Define the prompt template for conversation
 prompt_template = ChatPromptTemplate(
@@ -22,29 +12,13 @@ prompt_template = ChatPromptTemplate(
     assistant_message="{bot_response}"
 )
 
-# Create the conversation chain
-conversation_chain = ConversationChain(
-    llm=llm,
-    prompt_template=prompt_template,
-    history_length=5  # Adjust based on how many past interactions to keep
-)
+
 
 # Streamlit app layout
 st.title("🌍 Careconnect Chatbot")
 st.write("Hello! I'm 🌍 Careconnect. How can I assist you today?")
 
-# Initialize session state for conversation history if not already
-if 'history' not in st.session_state:
-    st.session_state.history = []
 
-# Display conversation history
-for message in st.session_state.history:
-    st.write(message)
-
-# Input text from user
-user_input = st.text_area("Your message:", "")
-
-if st.button("Send"):
     if user_input:
         try:
             # Add user message to history
@@ -62,5 +36,40 @@ if st.button("Send"):
             st.write(f"An error occurred: {e}")
     else:
         st.write("Please enter a message to get a response.")
+
+# Define a prompt template for querying
+prompt_template = PromptTemplate(
+    input_variables=["data_description", "question"],
+    template="""
+    You are a data analyst. Make your answers are easy to understand by a 10 year old. Here is the data you have:
+    {data_description}
+
+    Based on this data, answer the question: {question}
+    """
+)
+
+# Create a LangChain
+chain = LLMChain(llm=llm, prompt=prompt_template)
+
+def get_response(data_description, question):
+    # Running the chain to get a response based on the data description and a question
+    response = chain.run(data_description=data_description, question=question)
+    return response
+
+# Example usage
+if __name__ == "__main__":
+    data_description = "Data includes various facts about countries, such as capitals and population sizes and hurricane data"
+    while True:
+        question = input("Enter A Question \n")
+        answer = get_response(data_description, question)
+
+        print(answer)
+
+        if question == "exit":
+
+            break
+
+
+
 
 
