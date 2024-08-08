@@ -18,8 +18,7 @@ prompt_template = ChatPromptTemplate(
 st.title("🌍 Careconnect Chatbot")
 st.write("Hello! I'm 🌍 Careconnect. How can I assist you today?")
 
-
-    if user_input:
+if user_input:
         try:
             # Add user message to history
             st.session_state.history.append(f"User: {user_input}")
