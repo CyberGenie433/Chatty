@@ -33,7 +33,7 @@ if user_input:
             st.write(f"🌍 Careconnect: {bot_response}")
         except Exception as e:
             st.write(f"An error occurred: {e}")
-    else:
+else:
         st.write("Please enter a message to get a response.")
 
 # Define a prompt template for querying
