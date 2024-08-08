@@ -1,5 +1,5 @@
 from langchain.chains import LLMChain
-from langchain.llms import OpenAI
+import OpenAI
 from langchain.prompts import PromptTemplate
 
 # Set your OpenAI API key
